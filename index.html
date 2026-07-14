@@ -29,7 +29,7 @@
             letter-spacing: 1px;
         }
 
-        /* Πεδίο για τα "δικά σου λόγια" (Glassmorphism effect) */
+        /* Πεδίο για τα "δικά σου λόγια" */
         .about-app {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -73,7 +73,6 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Εφέ όταν περνάει το ποντίκι από πάνω */
         .city-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
@@ -106,7 +105,7 @@
             align-items: center;
             gap: 10px;
             font-weight: 600;
-            font-size: 1.1em;
+            font-size: 1.05em; /* Το έκανα ελαφρώς μικρότερο για να χωράει ωραία η ημερομηνία */
         }
 
         .weather-icon {
@@ -121,12 +120,12 @@
 
         .temp-max {
             font-weight: bold;
-            color: #d63031; /* Κόκκινο για τη μέγιστη */
+            color: #d63031;
             font-size: 1.2em;
         }
 
         .temp-min {
-            color: #0984e3; /* Μπλε για την ελάχιστη */
+            color: #0984e3;
             font-size: 0.9em;
             font-weight: 600;
         }
@@ -145,12 +144,11 @@
         <h1>☁️ Ο Καιρός Σήμερα</h1>
     </header>
 
-    <!-- ΕΔΩ ΓΡΑΦΕΙΣ ΤΑ ΔΙΚΑ ΣΟΥ ΛΟΓΙΑ -->
     <div class="about-app">
         <h3>Λίγα λόγια για το project</h3>
         <p>
-            Ονομάζομαι Κωνσταντίνος Μαντζουράτος και αυτή είναι η πρώτη μου web εφαρμογή!
-            Αυτή η σελίδα δημιουργήθηκε για να δείχνει ζωντανά την πρόγνωση του καιρού για τις επόμενες 3 ημέρες στην Αθήνα και τη Θεσσαλονίκη, αντλώντας δεδομένα σε πραγματικό χρόνο.
+            Ονομάζομαι Κωνσταντίνος Μαντζουράτος και αυτή είναι η πρώτη μου web εφαρμογή! 
+            Αυτή η σελίδα δημιουργήθηκε για να δείχνει ζωντανά την πρόγνωση του καιρού για τις επόμενες 3 ημέρες στην Αθήνα και τη Θεσσαλονίκη, αντλώντας δεδομένα σε πραγματικό χρόνο. 
             Χρησιμοποιεί το Open-Meteo API για να παρέχει ακριβείς και ενημερωμένες πληροφορίες σχετικά με τη θερμοκρασία και τις καιρικές συνθήκες.
         </p>
     </div>
@@ -169,20 +167,18 @@
     </div>
 
     <script>
-        // Συνάρτηση που μετατρέπει τον κωδικό καιρού του API σε Emoji γραφικό
         function getWeatherEmoji(code) {
-            if (code === 0) return '☀️'; // Καθαρός
-            if (code >= 1 && code <= 3) return '⛅'; // Συννεφιά
-            if (code >= 45 && code <= 48) return '🌫️'; // Ομίχλη
-            if (code >= 51 && code <= 67) return '🌧️'; // Βροχή
-            if (code >= 71 && code <= 77) return '❄️'; // Χιόνι
-            if (code >= 80 && code <= 82) return '🌦️'; // Μπόρες
-            if (code >= 95) return '⛈️'; // Καταιγίδα
+            if (code === 0) return '☀️'; 
+            if (code >= 1 && code <= 3) return '⛅'; 
+            if (code >= 45 && code <= 48) return '🌫️'; 
+            if (code >= 51 && code <= 67) return '🌧️'; 
+            if (code >= 71 && code <= 77) return '❄️'; 
+            if (code >= 80 && code <= 82) return '🌦️'; 
+            if (code >= 95) return '⛈️'; 
             return '☁️';
         }
 
         async function fetchWeather(lat, lon, elementId) {
-            // Προσθέσαμε το "weathercode" στο URL για να παίρνουμε την κατάσταση του καιρού (π.χ. βροχή, ήλιος)
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=3`;
             
             try {
@@ -192,7 +188,10 @@
                 let html = '';
                 for(let i = 0; i < 3; i++) {
                     const dateObj = new Date(data.daily.time[i]);
-                    const dateStr = dateObj.toLocaleDateString('el-GR', { weekday: 'long' }); // Δείχνει μόνο "Δευτέρα", "Τρίτη" κλπ
+                    
+                    // ΕΔΩ ΕΓΙΝΕ Η ΑΛΛΑΓΗ! 
+                    // Προσθέσαμε day: 'numeric' και month: 'short' για να δείχνει π.χ. "Δευτέρα, 15 Ιουλ"
+                    const dateStr = dateObj.toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'short' }); 
                     
                     const maxT = Math.round(data.daily.temperature_2m_max[i]);
                     const minT = Math.round(data.daily.temperature_2m_min[i]);
@@ -219,7 +218,6 @@
             }
         }
 
-        // Φόρτωση δεδομένων για τις 2 πόλεις
         fetchWeather(37.98, 23.72, 'athens');
         fetchWeather(40.64, 22.94, 'thessaloniki');
     </script>
