@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ο Καιρός σε Αθήνα & Θεσσαλονίκη</title>
+    <style>
+        /* Βασική εμφάνιση (CSS) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 { color: #2c3e50; }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .city-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .city-card h2 {
+            margin-top: 0;
+            color: #3498db;
+            border-bottom: 2px solid #f0f4f8;
+            padding-bottom: 10px;
+        }
+        .day-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f4f8;
+            font-size: 1.1em;
+        }
+        .day-row:last-child { border-bottom: none; }
+        .temp { font-weight: bold; color: #e74c3c; }
+        .loading { font-style: italic; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+    <h1>Πρόγνωση 3 Ημερών</h1>
+    
+    <div class="container">
+        <!-- Κάρτα Αθήνας -->
+        <div id="athens" class="city-card">
+            <h2>Αθήνα</h2>
+            <div class="content"><div class="loading">Φόρτωση δεδομένων...</div></div>
+        </div>
+
+        <!-- Κάρτα Θεσσαλονίκης -->
+        <div id="thessaloniki" class="city-card">
+            <h2>Θεσσαλονίκη</h2>
+            <div class="content"><div class="loading">Φόρτωση δεδομένων...</div></div>
+        </div>
+    </div>
+
+    <script>
+        // Η λογική μας (JavaScript)
+        async function fetchWeather(lat, lon, elementId) {
+            // Το URL του Open-Meteo ζητάει τις μέγιστες και ελάχιστες θερμοκρασίες για 3 μέρες
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let html = '';
+                // Κάνουμε loop για τις 3 ημέρες
+                for(let i = 0; i < 3; i++) {
+                    // Μετατροπή της ημερομηνίας σε ελληνική μορφή (π.χ. Τρίτη, 14 Ιουλ)
+                    const dateObj = new Date(data.daily.time[i]);
+                    const dateStr = dateObj.toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'short' });
+                    
+                    const maxT = Math.round(data.daily.temperature_2m_max[i]);
+                    const minT = Math.round(data.daily.temperature_2m_min[i]);
+                    
+                    html += `
+                        <div class="day-row">
+                            <span>${dateStr}</span>
+                            <span class="temp">${minT}° / ${maxT}°C</span>
+                        </div>
+                    `;
+                }
+                
+                // Εμφάνιση των δεδομένων στην αντίστοιχη κάρτα
+                document.querySelector(`#${elementId} .content`).innerHTML = html;
+                
+            } catch (error) {
+                document.querySelector(`#${elementId} .content`).innerHTML = '<div class="loading">Σφάλμα κατά τη φόρτωση.</div>';
+                console.error("Σφάλμα API:", error);
+            }
+        }
+
+        // Συντεταγμένες: Αθήνα (37.98, 23.72) & Θεσσαλονίκη (40.64, 22.94)
+        fetchWeather(37.98, 23.72, 'athens');
+        fetchWeather(40.64, 22.94, 'thessaloniki');
+    </script>
+
+</body>
+</html>
