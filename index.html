@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+<!-- Δηλώνω περιεχόμενο στα Ελληνικά-->
 <html lang="el">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"> <!-- Για emoji και να φαίνονται καλά τα Ελληνικά-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Λέει στον browser να προσαρμόσει το πλάτος της σελίδας στο πλάτος της οθόνης. Είναι απαραίτητο για σωστή εμφάνιση σε κινητά.-->
 
     <title>Live Ωριαία Πρόγνωση Καιρού</title>
 
@@ -273,7 +274,11 @@
         δημιουργούνται αυτόματα από τη JavaScript.
     -->
     <main id="forecast-container">
-        <div class="loading">Αναζήτηση δεδομένων καιρού...</div>
+        <div class="loading">Αναζήτηση δεδομένων καιρού...</div>   
+        <!--
+        Στην αρχή εμφανίζεται μόνο το μήνυμα: Αναζήτηση δεδομένων καιρού -> Όταν επιστραφούν τα δεδομένα του API, η JavaScript αντικαθιστά
+
+        -->
     </main>
 
     <div id="last-update" class="last-update" hidden></div>
