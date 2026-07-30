@@ -7,6 +7,10 @@
     <title>Live Ωριαία Πρόγνωση Καιρού</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
@@ -34,7 +38,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 15px;
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto 40px;
             padding: 25px;
             text-align: center;
@@ -54,53 +58,92 @@
             margin-bottom: 10px;
         }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 30px;
-            padding: 0 20px 60px;
+        /*
+         * Κάθε ενότητα αντιστοιχεί σε μία ημερομηνία.
+         */
+        .forecast-day {
+            width: min(1550px, calc(100% - 30px));
+            margin: 0 auto 55px;
+        }
+
+        .date-heading {
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+            width: fit-content;
+            margin: 0 auto 25px;
+            padding: 14px 30px;
+            background: rgba(44, 62, 80, 0.92);
+            color: white;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 1.6em;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .date-label {
+            font-weight: 700;
+        }
+
+        .date-number {
+            margin-left: 8px;
+            font-weight: 400;
+            color: #dfe6e9;
+        }
+
+        /*
+         * Οι τέσσερις πόλεις κάθε ημερομηνίας.
+         */
+        .cities-container {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(260px, 1fr));
+            align-items: start;
+            gap: 25px;
         }
 
         .city-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 25px;
-            width: 320px;
+            padding: 24px;
             max-height: 650px;
             overflow-y: auto;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            scrollbar-width: thin;
+            scrollbar-color: #9face6 transparent;
         }
 
         .city-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.22);
         }
 
         .city-card h2 {
-            margin-top: 0;
-            margin-bottom: 8px;
-            text-align: center;
+            position: sticky;
+            top: -24px;
+            z-index: 2;
+            margin: -24px -24px 8px;
+            padding: 24px 15px 15px;
+            background: rgba(255, 255, 255, 0.98);
             color: #34495e;
-            font-size: 1.8em;
+            text-align: center;
+            font-size: 1.7em;
+            border-bottom: 2px solid #eee;
         }
 
-        .city-date {
+        .city-timezone {
+            margin-bottom: 8px;
+            color: #7f8c8d;
             text-align: center;
-            color: #636e72;
-            font-weight: 600;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 5px;
+            font-size: 0.8em;
         }
 
         .hour-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 13px 0;
+            padding: 13px 5px;
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -109,18 +152,19 @@
         }
 
         .hour-row.current-hour {
-            background: rgba(116, 235, 213, 0.2);
-            border-radius: 10px;
-            padding-left: 10px;
             padding-right: 10px;
+            padding-left: 10px;
+            background: rgba(116, 235, 213, 0.25);
+            border-radius: 10px;
+            border-bottom-color: transparent;
         }
 
         .hour-info {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-weight: 600;
             font-size: 1.05em;
+            font-weight: 600;
         }
 
         .weather-icon {
@@ -128,18 +172,25 @@
         }
 
         .temperature {
-            font-weight: bold;
             color: #d63031;
             font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .current-label {
+            display: block;
+            color: #008878;
+            font-size: 0.7em;
+            font-weight: 700;
         }
 
         .loading,
         .error-message,
         .no-data {
+            padding: 25px 5px;
+            color: #7f8c8d;
             text-align: center;
             font-style: italic;
-            color: #7f8c8d;
-            padding: 20px 0;
         }
 
         .error-message {
@@ -147,21 +198,42 @@
         }
 
         .last-update {
-            margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid #eee;
+            max-width: 700px;
+            margin: -20px auto 45px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 20px;
+            color: #555;
             text-align: center;
-            color: #7f8c8d;
-            font-size: 0.8em;
+            font-size: 0.9em;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 1250px) {
+            .cities-container {
+                grid-template-columns: repeat(2, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 680px) {
             header h1 {
                 font-size: 2em;
             }
 
             .about-app {
-                margin: 0 15px 30px;
+                margin: 0 15px 35px;
+            }
+
+            .forecast-day {
+                width: calc(100% - 24px);
+            }
+
+            .date-heading {
+                font-size: 1.15em;
+                padding: 12px 20px;
+            }
+
+            .cities-container {
+                grid-template-columns: 1fr;
             }
 
             .city-card {
@@ -174,10 +246,10 @@
 <body>
 
     <header>
-        <h1>☁️ Ο Καιρός Σήμερα</h1>
+        <h1>☁️ Ο Καιρός Σήμερα και τις Επόμενες Ημέρες</h1>
     </header>
 
-    <div class="about-app">
+    <section class="about-app">
         <h3>Λίγα λόγια για το project</h3>
 
         <p>
@@ -186,84 +258,63 @@
         </p>
 
         <p>
-            Η σελίδα εμφανίζει την ωριαία πρόγνωση καιρού μόνο για την
-            τρέχουσα ημέρα στην Αθήνα, τη Θεσσαλονίκη, τον Πειραιά και τη
-            Βαρσοβία. Τα δεδομένα παρέχονται από το Open-Meteo API.
+            Η σελίδα εμφανίζει την ωριαία πρόγνωση για σήμερα και τις
+            επόμενες δύο ημέρες στην Αθήνα, τη Θεσσαλονίκη, τον Πειραιά
+            και τη Βαρσοβία.
         </p>
 
         <p>
-            <span style="color: red;">Update 30/07/2026:</span>
-            Προστέθηκε η Βαρσοβία και η ωριαία πρόγνωση.
+            Τα δεδομένα παρέχονται σε πραγματικό χρόνο από το Open-Meteo API.
         </p>
-    </div>
+    </section>
 
-    <main class="container">
-
-        <section id="athens" class="city-card">
-            <h2>Αθήνα</h2>
-            <div class="city-date"></div>
-            <div class="content">
-                <div class="loading">Αναζήτηση δεδομένων...</div>
-            </div>
-        </section>
-
-        <section id="thessaloniki" class="city-card">
-            <h2>Θεσσαλονίκη</h2>
-            <div class="city-date"></div>
-            <div class="content">
-                <div class="loading">Αναζήτηση δεδομένων...</div>
-            </div>
-        </section>
-
-        <section id="piraeus" class="city-card">
-            <h2>Πειραιάς</h2>
-            <div class="city-date"></div>
-            <div class="content">
-                <div class="loading">Αναζήτηση δεδομένων...</div>
-            </div>
-        </section>
-
-        <section id="warsaw" class="city-card">
-            <h2>Βαρσοβία</h2>
-            <div class="city-date"></div>
-            <div class="content">
-                <div class="loading">Αναζήτηση δεδομένων...</div>
-            </div>
-        </section>
-
+    <!--
+        Οι ενότητες ημερομηνιών και οι κάρτες των πόλεων
+        δημιουργούνται αυτόματα από τη JavaScript.
+    -->
+    <main id="forecast-container">
+        <div class="loading">Αναζήτηση δεδομένων καιρού...</div>
     </main>
+
+    <div id="last-update" class="last-update" hidden></div>
 
     <script>
         const cities = [
             {
                 id: 'athens',
+                name: 'Αθήνα',
                 latitude: 37.98,
                 longitude: 23.72
             },
             {
                 id: 'thessaloniki',
+                name: 'Θεσσαλονίκη',
                 latitude: 40.64,
                 longitude: 22.94
             },
             {
                 id: 'piraeus',
+                name: 'Πειραιάς',
                 latitude: 37.9368118,
                 longitude: 23.6384016
             },
             {
                 id: 'warsaw',
+                name: 'Βαρσοβία',
                 latitude: 52.1850298,
                 longitude: 20.9857677
             }
         ];
 
-        /*
-         * Αποθηκεύουμε την ημερομηνία που επέστρεψε το API για κάθε πόλη.
-         * Έτσι μπορούμε να εντοπίσουμε πότε άλλαξε η ημέρα στην τοπική
-         * ζώνη ώρας της κάθε πόλης.
-         */
-        const cityDates = {};
+        const forecastContainer = document.getElementById(
+            'forecast-container'
+        );
 
+        const lastUpdateElement = document.getElementById('last-update');
+
+        /*
+         * Μετατρέπει τον κωδικό καιρού του Open-Meteo σε emoji.
+         */
         function getWeatherEmoji(code) {
             if (code === 0) return '☀️';
             if (code >= 1 && code <= 3) return '⛅';
@@ -276,103 +327,291 @@
             return '☁️';
         }
 
-        function formatDate(dateString) {
-            /*
-             * Προσθέτουμε ώρα για να αποφύγουμε πιθανή αλλαγή ημερομηνίας
-             * κατά τη μετατροπή μεταξύ διαφορετικών time zones.
-             */
+        /*
+         * Επιστρέφει την ημερομηνία με μορφή 30/7/2026.
+         * Η ώρα 12:00 αποτρέπει πιθανή αλλαγή της ημερομηνίας
+         * κατά τη δημιουργία του Date.
+         */
+        function formatNumericDate(dateString) {
             const date = new Date(`${dateString}T12:00:00`);
 
             return date.toLocaleDateString('el-GR', {
-                weekday: 'long',
                 day: 'numeric',
-                month: 'long',
+                month: 'numeric',
                 year: 'numeric'
             });
         }
 
-        async function fetchWeather(city) {
-            const card = document.getElementById(city.id);
-            const content = card.querySelector('.content');
-            const cityDateElement = card.querySelector('.city-date');
+        /*
+         * Επιστρέφει την ημέρα της εβδομάδας.
+         */
+        function formatWeekday(dateString) {
+            const date = new Date(`${dateString}T12:00:00`);
 
+            return date.toLocaleDateString('el-GR', {
+                weekday: 'long'
+            });
+        }
+
+        /*
+         * Ονομασία της ημέρας:
+         * Σήμερα, Αύριο ή Μεθαύριο.
+         */
+        function getDayLabel(dayIndex) {
+            if (dayIndex === 0) return 'Σήμερα';
+            if (dayIndex === 1) return 'Αύριο';
+
+            return 'Μεθαύριο';
+        }
+
+        /*
+         * Δημιουργεί έναν μοναδικό κωδικό για κάθε κάρτα.
+         * Παράδειγμα: athens-2026-07-30
+         */
+        function getCardId(cityId, dateString) {
+            return `${cityId}-${dateString}`;
+        }
+
+        /*
+         * Δημιουργεί τις τρεις ημερομηνίες και τις κάρτες
+         * των τεσσάρων πόλεων.
+         *
+         * Οι ημερομηνίες προέρχονται από τα δεδομένα της Αθήνας,
+         * η οποία χρησιμοποιείται ως βάση για τη δομή της σελίδας.
+         */
+        function createForecastLayout(dates) {
+            forecastContainer.innerHTML = dates
+                .map((dateString, dayIndex) => {
+                    const cityCards = cities
+                        .map(city => {
+                            const cardId = getCardId(
+                                city.id,
+                                dateString
+                            );
+
+                            return `
+                                <article
+                                    id="${cardId}"
+                                    class="city-card"
+                                >
+                                    <h2>${city.name}</h2>
+
+                                    <div class="city-timezone">
+                                        Τοπική ώρα πόλης
+                                    </div>
+
+                                    <div class="content">
+                                        <div class="loading">
+                                            Φόρτωση πρόγνωσης...
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        })
+                        .join('');
+
+                    return `
+                        <section class="forecast-day">
+                            <h2 class="date-heading">
+                                <span class="date-label">
+                                    ${getDayLabel(dayIndex)}
+                                </span>
+
+                                <span class="date-number">
+                                    ${formatWeekday(dateString)},
+                                    ${formatNumericDate(dateString)}
+                                </span>
+                            </h2>
+
+                            <div class="cities-container">
+                                ${cityCards}
+                            </div>
+                        </section>
+                    `;
+                })
+                .join('');
+        }
+
+        /*
+         * Λήψη ωριαίας πρόγνωσης τριών ημερών για μία πόλη.
+         */
+        async function fetchCityWeather(city) {
             const params = new URLSearchParams({
                 latitude: city.latitude,
                 longitude: city.longitude,
+
+                // Ζητάμε θερμοκρασία και κωδικό καιρού ανά ώρα.
                 hourly: 'temperature_2m,weather_code',
-                forecast_days: '1',
+
+                // Σήμερα + επόμενες δύο ημέρες.
+                forecast_days: '3',
+
+                // Το API επιστρέφει την τοπική ώρα κάθε πόλης.
                 timezone: 'auto'
             });
 
-            const url = `https://api.open-meteo.com/v1/forecast?${params}`;
+            const url =
+                `https://api.open-meteo.com/v1/forecast?${params}`;
 
-            try {
-                const response = await fetch(url);
+            const response = await fetch(url);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(
+                    `Σφάλμα HTTP ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            if (
+                !data.hourly ||
+                !data.hourly.time ||
+                !data.hourly.temperature_2m ||
+                !data.hourly.weather_code
+            ) {
+                throw new Error(
+                    'Το API δεν επέστρεψε σωστά ωριαία δεδομένα.'
+                );
+            }
+
+            return {
+                city,
+                timezone: data.timezone,
+                hourly: data.hourly
+            };
+        }
+
+        /*
+         * Ομαδοποιεί τα ωριαία δεδομένα ανά ημερομηνία.
+         */
+        function groupHoursByDate(hourly) {
+            const groupedData = {};
+
+            hourly.time.forEach((dateTime, index) => {
+                const date = dateTime.substring(0, 10);
+                const hour = dateTime.substring(11, 16);
+
+                if (!groupedData[date]) {
+                    groupedData[date] = [];
                 }
 
-                const data = await response.json();
+                groupedData[date].push({
+                    dateTime,
+                    hour,
+                    temperature: hourly.temperature_2m[index],
+                    weatherCode: hourly.weather_code[index]
+                });
+            });
 
-                if (
-                    !data.hourly ||
-                    !data.hourly.time ||
-                    !data.hourly.temperature_2m ||
-                    !data.hourly.weather_code
-                ) {
-                    throw new Error('Δεν επιστράφηκαν σωστά δεδομένα.');
-                }
+            return groupedData;
+        }
 
-                /*
-                 * Το current time επιστρέφεται σύμφωνα με το timezone=auto,
-                 * δηλαδή στην τοπική ώρα της συγκεκριμένης πόλης.
-                 */
-                const currentCityTime = data.current
-                    ? data.current.time
-                    : data.hourly.time[0];
+        /*
+         * Δημιουργεί την ωριαία πρόγνωση μίας πόλης
+         * για μία συγκεκριμένη ημερομηνία.
+         */
+        function renderCityForecast(
+            cityData,
+            dateString,
+            dayIndex
+        ) {
+            const cardId = getCardId(
+                cityData.city.id,
+                dateString
+            );
 
-                const currentDate = currentCityTime.substring(0, 10);
-                const currentHour = new Date(currentCityTime).getHours();
+            const card = document.getElementById(cardId);
 
-                cityDates[city.id] = currentDate;
-                cityDateElement.textContent = formatDate(currentDate);
+            if (!card) {
+                return;
+            }
 
-                let html = '';
+            const content = card.querySelector('.content');
+            const timezoneElement = card.querySelector(
+                '.city-timezone'
+            );
 
-                data.hourly.time.forEach((time, index) => {
-                    const forecastDate = time.substring(0, 10);
-                    const forecastHour = new Date(time).getHours();
+            timezoneElement.textContent =
+                `Ζώνη ώρας: ${cityData.timezone}`;
 
-                    /*
-                     * Κρατάμε μόνο:
-                     * 1. Την τρέχουσα ημερομηνία.
-                     * 2. Την τρέχουσα και τις επόμενες ώρες.
-                     */
-                    if (
-                        forecastDate !== currentDate ||
-                        forecastHour < currentHour
-                    ) {
-                        return;
-                    }
+            const groupedData = groupHoursByDate(cityData.hourly);
+            let hours = groupedData[dateString] || [];
 
-                    const hourText = `${String(forecastHour).padStart(2, '0')}:00`;
-                    const temperature = Math.round(
-                        data.hourly.temperature_2m[index]
+            /*
+             * Για τη σημερινή ημέρα αφαιρούμε τις ώρες
+             * που έχουν ήδη περάσει.
+             *
+             * Τα strings του Open-Meteo έχουν μορφή:
+             * 2026-07-30T14:00
+             */
+            if (dayIndex === 0) {
+                const cityNow = new Date().toLocaleString('en-US', {
+                    timeZone: cityData.timezone,
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const currentHour = Number(
+                    cityNow.split(':')[0]
+                );
+
+                hours = hours.filter(hourData => {
+                    const forecastHour = Number(
+                        hourData.hour.substring(0, 2)
                     );
-                    const weatherCode = data.hourly.weather_code[index];
-                    const emoji = getWeatherEmoji(weatherCode);
 
-                    const currentHourClass =
-                        forecastHour === currentHour
-                            ? 'current-hour'
-                            : '';
+                    return forecastHour >= currentHour;
+                });
+            }
 
-                    html += `
-                        <div class="hour-row ${currentHourClass}">
+            if (hours.length === 0) {
+                content.innerHTML = `
+                    <div class="no-data">
+                        Δεν υπάρχουν διαθέσιμα δεδομένα
+                        για αυτή την ημερομηνία.
+                    </div>
+                `;
+
+                return;
+            }
+
+            content.innerHTML = hours
+                .map((hourData, index) => {
+                    const temperature = Math.round(
+                        hourData.temperature
+                    );
+
+                    const emoji = getWeatherEmoji(
+                        hourData.weatherCode
+                    );
+
+                    const isCurrentHour =
+                        dayIndex === 0 && index === 0;
+
+                    return `
+                        <div class="
+                            hour-row
+                            ${isCurrentHour ? 'current-hour' : ''}
+                        ">
                             <div class="hour-info">
-                                <span class="weather-icon">${emoji}</span>
-                                <span>${hourText}</span>
+                                <span class="weather-icon">
+                                    ${emoji}
+                                </span>
+
+                                <div>
+                                    <span>${hourData.hour}</span>
+
+                                    ${
+                                        isCurrentHour
+                                            ? `
+                                                <span class="current-label">
+                                                    Τρέχουσα ώρα
+                                                </span>
+                                            `
+                                            : ''
+                                    }
+                                </div>
                             </div>
 
                             <span class="temperature">
@@ -380,57 +619,149 @@
                             </span>
                         </div>
                     `;
-                });
-
-                if (!html) {
-                    html = `
-                        <div class="no-data">
-                            Δεν υπάρχουν διαθέσιμα ωριαία δεδομένα.
-                        </div>
-                    `;
-                }
-
-                const lastUpdate = new Date().toLocaleTimeString('el-GR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                html += `
-                    <div class="last-update">
-                        Τελευταία ενημέρωση εφαρμογής: ${lastUpdate}
-                    </div>
-                `;
-
-                content.innerHTML = html;
-
-            } catch (error) {
-                console.error(`Σφάλμα για την πόλη ${city.id}:`, error);
-
-                content.innerHTML = `
-                    <div class="error-message">
-                        Αδυναμία φόρτωσης των δεδομένων καιρού.
-                    </div>
-                `;
-            }
-        }
-
-        async function loadAllCities() {
-            await Promise.all(
-                cities.map(city => fetchWeather(city))
-            );
+                })
+                .join('');
         }
 
         /*
-         * Ζητάμε ξανά τα δεδομένα κάθε 5 λεπτά.
+         * Εμφανίζει σφάλμα στις κάρτες μιας πόλης,
+         * αν αποτύχει η λήψη των δεδομένων της.
+         */
+        function showCityError(city, dates) {
+            dates.forEach(dateString => {
+                const card = document.getElementById(
+                    getCardId(city.id, dateString)
+                );
+
+                if (!card) {
+                    return;
+                }
+
+                card.querySelector('.content').innerHTML = `
+                    <div class="error-message">
+                        Αδυναμία φόρτωσης των δεδομένων.
+                    </div>
+                `;
+            });
+        }
+
+        /*
+         * Κύρια λειτουργία φόρτωσης.
+         */
+        async function loadWeather() {
+            forecastContainer.innerHTML = `
+                <div class="loading">
+                    Αναζήτηση δεδομένων καιρού...
+                </div>
+            `;
+
+            lastUpdateElement.hidden = true;
+
+            /*
+             * Πρώτα φορτώνεται η Αθήνα ώστε να πάρουμε
+             * τις τρεις ημερομηνίες που θα δημιουργήσουν
+             * τις ενότητες της σελίδας.
+             */
+            let athensData;
+
+            try {
+                athensData = await fetchCityWeather(cities[0]);
+            } catch (error) {
+                console.error(error);
+
+                forecastContainer.innerHTML = `
+                    <div class="error-message">
+                        Δεν ήταν δυνατή η δημιουργία της πρόγνωσης.
+                    </div>
+                `;
+
+                return;
+            }
+
+            const dates = [
+                ...new Set(
+                    athensData.hourly.time.map(dateTime =>
+                        dateTime.substring(0, 10)
+                    )
+                )
+            ].slice(0, 3);
+
+            createForecastLayout(dates);
+
+            /*
+             * Εμφάνιση δεδομένων Αθήνας.
+             */
+            dates.forEach((dateString, dayIndex) => {
+                renderCityForecast(
+                    athensData,
+                    dateString,
+                    dayIndex
+                );
+            });
+
+            /*
+             * Οι υπόλοιπες πόλεις φορτώνονται παράλληλα.
+             */
+            const remainingCities = cities.slice(1);
+
+            const results = await Promise.allSettled(
+                remainingCities.map(city =>
+                    fetchCityWeather(city)
+                )
+            );
+
+            results.forEach((result, index) => {
+                const city = remainingCities[index];
+
+                if (result.status === 'fulfilled') {
+                    dates.forEach((dateString, dayIndex) => {
+                        renderCityForecast(
+                            result.value,
+                            dateString,
+                            dayIndex
+                        );
+                    });
+                } else {
+                    console.error(
+                        `Σφάλμα για ${city.name}:`,
+                        result.reason
+                    );
+
+                    showCityError(city, dates);
+                }
+            });
+
+            const updateTime = new Date().toLocaleTimeString(
+                'el-GR',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }
+            );
+
+            lastUpdateElement.textContent =
+                `Τελευταία ενημέρωση εφαρμογής: ${updateTime}`;
+
+            lastUpdateElement.hidden = false;
+        }
+
+        /*
+         * Αρχική φόρτωση.
+         */
+        loadWeather();
+
+        /*
+         * Αυτόματη ενημέρωση κάθε 5 λεπτά.
          *
-         * Επειδή κάθε αίτημα χρησιμοποιεί forecast_days=1 και timezone=auto,
-         * όταν περάσουν τα μεσάνυχτα το API θα επιστρέψει αυτόματα την
-         * ωριαία πρόγνωση της νέας ημέρας για την αντίστοιχη πόλη.
+         * Όταν αλλάξει η ημέρα, το forecast_days=3 θα επιστρέψει:
+         * - τη νέα σημερινή ημέρα,
+         * - την αυριανή,
+         * - τη μεθαυριανή.
          */
         const refreshInterval = 5 * 60 * 1000;
 
-        loadAllCities();
-        setInterval(loadAllCities, refreshInterval);
+        setInterval(loadWeather, refreshInterval);
     </script>
 
 </body>
